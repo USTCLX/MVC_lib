@@ -75,8 +75,6 @@ function Class(){
 //其实这样还是比较丑陋的，如果可以在创建一个类的时候，直接声明它的静态方法和实例方法就好了。
 //所以干脆还是用es6吧，自己捣鼓半天，语法也不漂亮，何况现在es6的支持已经很好了
 
-//Animaton Class
-
 var Root = new Class({name:'Root'});
 Root.include({
     init:function(opts){
@@ -85,6 +83,7 @@ Root.include({
     }
 })
 
+//Animal Class
 var Animal = new Class({name:'Animal',parent:Root});
 Animal.include({
     init:function(opts){

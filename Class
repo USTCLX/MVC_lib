@@ -1,0 +1,116 @@
+function Class(){
+    var opts = arguments[0]||{};
+
+    var name = opts.name;
+    var parent = opts.parent;
+
+    //继承函数
+    function inherit(subClass,superClass){
+        var Foo = function(){};
+        Foo.prototype = superClass;
+        subClass.prototype = new Foo();
+        subClass.prototype.constructor = subClass;
+    }
+
+    //生成类
+    var Klass = function(){
+        //初始化实例
+        this.init.apply(this,arguments);
+    }
+
+    //修改类名
+    if(!!name&&typeof name ==='string'){
+        Object.defineProperty(Klass,'name',{
+            value:name,
+        })
+    }
+
+    //实现继承
+    if(parent){
+        inherit(Klass,parent.prototype);
+        Klass.prototype._parent = parent;
+    }
+
+    Klass.extend = function(obj){
+        var extended = obj.extended;
+        for(var key in obj){
+            if(obj.hasOwnProperty(key)){
+                Klass[key] = obj[key];
+            }
+        }
+        if(extended){
+            //回调
+            extended(Klass);
+        }
+    }
+
+    Klass.include = function(obj){
+        var included = obj.included;
+        for(var key in obj){
+            if(obj.hasOwnProperty(key)){
+                Klass.prototype[key] = obj[key];
+            }
+        }
+        if(included){
+            //回调
+            included(Klass);
+        }
+    }
+
+    //调用父类初始化方法
+    Klass.prototype.super = function(opts){
+        if(this._parent){
+            var obj = new this._parent(opts);
+            for(var key in obj){
+                if(obj.hasOwnProperty(key)){
+                    this[key] = obj[key];
+                }
+            }
+        }
+    }
+    return Klass;
+}
+
+//polyfill 了一个class的实现，可以创建一个类，给类命名，并可以实现继承。
+//其实这样还是比较丑陋的，如果可以在创建一个类的时候，直接声明它的静态方法和实例方法就好了。
+//所以干脆还是用es6吧，自己捣鼓半天，语法也不漂亮，何况现在es6的支持已经很好了
+
+//Animaton Class
+
+var Root = new Class({name:'Root'});
+Root.include({
+    init:function(opts){
+        var opts = opts||{};
+        this.root = 'root';
+    }
+})
+
+var Animal = new Class({name:'Animal',parent:Root});
+Animal.include({
+    init:function(opts){
+        var opts = opts||{};
+        this.super(opts)
+        this.type = opts.type||'';
+    },
+    speak:function(){
+        console.log(this.name+":haha");
+    }
+})
+
+//Cat Class
+var Cat = new Class({name:'Cat',parent:Animal});
+Cat.include({
+    init:function(opts){
+        this.super(opts);
+        this.name = opts.name||'';
+    },
+    speak:function(){
+        console.log(this.name+":xixi"+this.type);
+    }
+})
+
+//实例化
+var kitty = new Cat({name:'kitty',type:'Cat'});
+kitty.speak();
+console.log(kitty)
+

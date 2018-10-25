@@ -1,0 +1,64 @@
+const Model = {
+	_created:function(){
+		this.records = [];
+	},
+
+	create:function(){
+		// 鍒涘缓瀛愮被
+		const child = Object.create(this);
+		child.prototype = Object.create(this.prototype);
+		child._parent = this;
+		child._created();
+		return child;
+	},
+
+	instance:function(attrs){
+		// 鐢熸垚瀹炰緥
+		const instance = Object.create(this.prototype);
+		instance._parent = this;
+		instance.init(attrs);
+		return instance;
+	},
+
+	extend:function(obj){
+		Object.assign(this,obj);
+		return this;
+	},
+
+	include:function(obj){
+		Object.assign(this.prototype,obj);
+		return this;
+	},
+
+	prototype:{
+		newRecord:true,
+		init:function(attrs){
+			// 鍒濆璇濆疄渚嬪璞�
+			Object.keys(attrs).forEach((key)=>{
+				this[key] = attrs[key];
+			})
+		},
+		save:function(){
+			this.newRecord?this.createIns():this.updateIns();
+			return this;
+		},
+		createIns:function(){
+			this.newRecord = false;
+			this._id = Math.random();
+			this._parent.records.unshift(this);
+		},
+		updateIns:function(){
+			const records = this._parent.records;
+			records.forEach(record=>{
+				if(record._id===this._id){
+					Object.assign(record,this);
+				}
+			})
+		},
+	},
+}
+
+
+const bob = Model.instance({name:'haha',age:18}).save();
+
+let haha = 'haha'
